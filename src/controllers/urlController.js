@@ -75,10 +75,11 @@ const createurl = async function (req, res) {
 
          let shortUrl = baseUrl + '/' + urlCode
             
-         data.urlCode = urlCode 
          data.shortUrl = shortUrl
+         data.urlCode = urlCode 
+         
             
-         data1 = await urlModel.create(data);
+         const data1 = await urlModel.create(data);
         //---SET GENERATE DATA IN CACHE
         await SET_ASYNC(`${longUrl}`, JSON.stringify(data))
         return res.status(201).send({ status: true, msg: `URL created successfully`, data: data1 });     //set in redies cache key= urlCode, value=longUrl
@@ -92,8 +93,8 @@ const createurl = async function (req, res) {
 const geturl = async function (req, res) {
     try {
         const urlCode = req.params.urlCode
-        //if (!isValid(urlCode))
-         if (urlCode.length != 9){
+        
+        if (!isValid(urlCode)){
             res.status(400).send({ status: false, message: 'Please provide valid urlCode' })
             return
         }
@@ -101,7 +102,7 @@ const geturl = async function (req, res) {
         let findUrlInCache = await GET_ASYNC(`${urlCode}`)
 
         if (findUrlInCache) {              
-            return res.status(302).redirect(JSON.parse(findUrlInCache))
+            return res.status(302).redirect(findUrlInCache)
         }else{
         const url = await urlModel.findOne({ urlCode: urlCode }) //second check in D
         if (!url) {
