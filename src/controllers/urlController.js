@@ -7,25 +7,6 @@ const redis= require('redis')
 const { promisify } = require("util");
 
 
-//Connect to redis
-//const redisClient = redis.createClient(
-//     11787,
-//     "redis-11787.c264.ap-south-1-1.ec2.cloud.redislabs.com",
-//     { no_ready_check: true }
-// );
-// redisClient.auth("tYE4mme3ufW6Tj2ypJJ32ZuknmQfmTNf", function (err) {
-//     if (err) throw err;
-// });
-
-// redisClient.on("connect", async function () {
-//     console.log("Connected to Redis..");
-// });
-
-// //Connection setup for redis
-
-// const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
-// const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
-
 const isValid = function (value) {
     if (typeof value == 'undefined' || value === null) return false
     if (typeof value == 'string' && value.trim().length === 0)return false
@@ -94,9 +75,10 @@ const createurl = async function (req, res) {
 
          let shortUrl = baseUrl + '/' + urlCode
             
-         data = {urlCode: urlCode,longUrl: checkUrl,shortUrl: shortUrl}
+         data.urlCode = urlCode 
+         data.shortUrl = shortUrl
             
-         const data1 = await urlModel.create(data);
+         data1 = await urlModel.create(data);
         //---SET GENERATE DATA IN CACHE
         await SET_ASYNC(`${longUrl}`, JSON.stringify(data))
         return res.status(201).send({ status: true, msg: `URL created successfully`, data: data1 });     //set in redies cache key= urlCode, value=longUrl
